@@ -1,7 +1,7 @@
 databases:
   - name: origin8lab-backend
     databaseName: origin8lab-backend
-    user: postgres
+    user: origin8lab
     plan: free
 
 services:
