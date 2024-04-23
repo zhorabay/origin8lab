@@ -1,6 +1,6 @@
 databases:
   - name: origin8lab-backend
-    databaseName: origin8lab-backend
+    databaseName: origin8lab
     user: origin8lab
     plan: free
 
