@@ -4,7 +4,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:3001' # Replace with your frontend URL
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
 
     resource '/api/v1/*',
              headers: :any,
@@ -14,7 +14,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   end
 
   allow do
-    origins 'http://localhost:3001' # Replace with your frontend URL
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
 
     resource '/login',
              headers: :any,
@@ -24,7 +24,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   end
 
   allow do
-    origins 'http://localhost:3001' # Replace with your frontend URL
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
 
     resource '/signup',
              headers: :any,
@@ -34,7 +34,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   end
 
   allow do
-    origins 'http://localhost:3001' # Replace with your frontend URL
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
 
     resource '/logout',
              headers: :any,
@@ -43,7 +43,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
              credentials: true
   end
   allow do
-    origins 'http://localhost:3001' # Replace with your frontend URL
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
 
     resource '/search',
              headers: :any,
