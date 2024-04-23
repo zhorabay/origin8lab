@@ -72,3 +72,4 @@ end
 gem 'devise'
 gem 'devise-jwt'
 gem 'jwt'
+gem 'dotenv', require: 'dotenv/load'
