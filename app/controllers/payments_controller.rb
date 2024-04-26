@@ -5,7 +5,7 @@ class PaymentsController < ApplicationController
 
     @api_user.courses << @api_course
 
-    UserMailer.delay.welcome_email(@api_user)
+    UserMailer.welcome_email(@api_user).deliver_later
 
     render json: { message: 'Payment received successfully' }, status: :ok
   end
