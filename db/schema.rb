@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_23_122522) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_26_010529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -93,6 +93,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_23_122522) do
     t.index ["category_id"], name: "index_courses_on_category_id"
   end
 
+  create_table "enrollments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_enrollments_on_course_id"
+    t.index ["user_id"], name: "index_enrollments_on_user_id"
+  end
+
   create_table "lessons", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -125,6 +134,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_23_122522) do
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
+    t.string "surname"
+    t.date "birthdate"
+    t.string "nationality"
+    t.string "gender"
+    t.string "whatsapp"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -137,6 +151,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_23_122522) do
   add_foreign_key "comments", "users"
   add_foreign_key "course_modules", "courses"
   add_foreign_key "courses", "categories"
+  add_foreign_key "enrollments", "courses"
+  add_foreign_key "enrollments", "users"
   add_foreign_key "lessons", "course_modules"
   add_foreign_key "reviews", "courses"
   add_foreign_key "reviews", "users"

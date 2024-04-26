@@ -12,11 +12,14 @@ class Api::V1::UsersController < ApplicationController
 
   def create
     @api_user = User.new(api_user_params)
+    @api_user.password = generate_random_password
 
     if @api_user.save
+      send_password_to_user(@api_user)
       token = AuthenticationTokenService.encode(@api_user.id, ENV.fetch('HMAC_SECRET'))
       render json: { user: @api_user, token: token }, status: :created
     else
+      Rails.logger.error(@api_user.errors.full_messages.join(', '))
       render json: { success: false, message: @api_user.errors.full_messages }, status: :unprocessable_entity
     end
   end
@@ -45,7 +48,15 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def api_user_params
-    params.require(:user).permit(:name, :phone_number, :email, :password, :password_confirmation)
+    params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname)
+  end
+
+  def generate_random_password
+    SecureRandom.hex(8)
+  end
+
+  def send_password_to_user(api_user)
+    UserMailer.welcome_email(api_user).deliver_now
   end
 
   def render_users_json
