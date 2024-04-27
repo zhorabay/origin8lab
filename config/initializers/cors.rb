@@ -49,4 +49,11 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
              headers: :any,
              methods: [:get] # Adjust the resource path and allowed HTTP methods as needed
   end
+  allow do
+    origins 'https://origin8lab-f.onrender.com' # Replace with your frontend URL
+
+    resource '/payments/success',
+             headers: :any,
+             methods: [:get] # Adjust the resource path and allowed HTTP methods as needed
+  end
 end
