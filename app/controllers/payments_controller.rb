@@ -1,11 +1,27 @@
 class PaymentsController < ApplicationController
-  def handle_payment_success
-    @api_user = current_user
-    @api_course = Course.find(params[:course_id])
+  def handle_success
+    Rails.logger.debug("Received parameters: #{params.inspect}") # Log received parameters
 
-    @api_user.courses << @api_course
+    @course = Course.find_by(id: params[:course_id])
+    unless @course
+      render json: { error: 'Course not found' }, status: :not_found
+      return
+    end
 
-    UserMailer.welcome_email(@api_user).deliver_later
+    user = User.find_by(id: params[:userId])
+    unless user
+      render json: { error: 'User not found' }, status: :not_found
+      return
+    end
+
+    if user.courses.exists?(@course.id)
+      render json: { error: 'User has already paid for this course' }, status: :unprocessable_entity
+      return
+    end
+
+    user.courses << @course
+
+    @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
 
     render json: { message: 'Payment received successfully' }, status: :ok
   end

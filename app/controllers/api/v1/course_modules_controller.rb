@@ -53,16 +53,27 @@ class Api::V1::CourseModulesController < ApplicationController
 
   def render_course_modules_json
     if @course_modules.present?
-      render json: { success: true, course_modules: @course_modules }
+      module_details = @course_modules.map do |mod|
+        {
+          id: mod.id,
+          week: mod.week,
+          title: mod.title,
+          description: mod.description,
+          payment_status: mod.payment_status,
+          course_id: mod.course_id
+        }
+      end
+      Rails.logger.debug("Payment status: #{module_details.map { |m| m[:payment_status] }}") # Log payment status
+      render json: { success: true, course_modules: module_details }
     else
       render json: { success: false, message: 'No modules found for this course' }
     end
   rescue StandardError => e
     render json: { success: false, message: e.message }
-  end
+  end  
 
   def render_course_module_json(status: :ok)
-    render json: { success: true, course_module: @course_module }, status:
+    render json: { success: true, course_module: @course_module }, status: status
   end
 
   def render_course_module_not_found

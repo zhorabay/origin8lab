@@ -48,7 +48,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def api_user_params
-    params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname)
+    params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
   end
 
   def generate_random_password
@@ -56,7 +56,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def send_password_to_user(api_user)
-    UserMailer.welcome_email(api_user).deliver_later
+    UserMailer.welcome_email(@api_user).deliver_now
   end
 
   def render_users_json
