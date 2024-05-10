@@ -1,0 +1,10 @@
+{
+  "deploy": {
+    "hooks": [
+      { "type": "docker", "path": "Dockerfile" }
+    ]
+  },
+  "release": [
+    { "command": "rails db:migrate" }
+  ]
+}
