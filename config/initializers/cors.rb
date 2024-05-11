@@ -2,7 +2,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'https://origin8lab.com', 'https://origin8lab-cu7g.onrender.com' # Add your frontend URLs
+    origins 'https://origin8lab.com' # Add your frontend URLs
 
     resource '*', # Adjust this to match your actual API endpoints
       headers: :any,
