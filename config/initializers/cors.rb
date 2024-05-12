@@ -60,7 +60,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource '/payments/success',
              headers: :any,
-             methods: [:post], # Adjust with the method used for logout
+             methods: [:post, :get], # Adjust with the method used for logout
              credentials: true
   end
 end

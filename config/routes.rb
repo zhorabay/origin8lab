@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   get '/search', to: 'search#search'
   match '/logout', to: 'users/sessions#destroy', via: [:get, :delete]
   post '/payments/success', to: 'payments#handle_success'
-  post '/registration', to: 'users#create'
+  match '/registration', to: 'users#create', via: [:get, :post]
 
   devise_for :users, path: '', path_names: {
     sign_in: 'login',
