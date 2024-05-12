@@ -47,7 +47,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def api_user_params
-    params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
+    params.require(:user).permit(:name, :password, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
   end
 
   def generate_random_password
