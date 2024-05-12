@@ -12,7 +12,6 @@ class Api::V1::UsersController < ApplicationController
 
   def create
     @api_user = User.new(api_user_params)
-    @api_user.password = generate_random_password
 
     if @api_user.save
       send_password_to_user(@api_user)
