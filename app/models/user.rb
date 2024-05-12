@@ -10,9 +10,4 @@ class User < ApplicationRecord
 
   validates :name, presence: true
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
-  validates :gender, presence: true
-  validates :phone_number, presence: true
-  validates :whatsapp, presence: true
-  validates :nationality, presence: true
-  validates :birthdate, presence: true
 end
