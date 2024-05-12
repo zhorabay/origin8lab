@@ -12,6 +12,7 @@ class Api::V1::UsersController < ApplicationController
 
   def create
     @api_user = User.new(api_user_params)
+    @api_user.password = generate_random_password
 
     if @api_user.save
       send_password_to_user(@api_user)
@@ -47,7 +48,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def api_user_params
-    params.require(:user).permit(:name, :password, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
+    params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
   end
 
   def generate_random_password
