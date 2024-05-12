@@ -56,7 +56,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def send_password_to_user(api_user)
-    UserMailer.welcome_email(@api_user).deliver_delay
+    UserMailer.welcome_email(api_user).deliver_later
   end
 
   def render_users_json
