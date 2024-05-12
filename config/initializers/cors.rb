@@ -31,6 +31,15 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins 'https://origin8lab.com' # Replace with your frontend URL
 
+    resource '/registration',
+             headers: :any,
+             methods: [:post], # Adjust with the method used for signup
+             credentials: true
+  end
+
+  allow do
+    origins 'https://origin8lab.com' # Replace with your frontend URL
+
     resource '/logout',
              headers: :any,
              methods: [:delete], # Adjust with the method used for logout
