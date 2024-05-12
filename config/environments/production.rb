@@ -94,4 +94,15 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "mail.origin8lab.com",
+    port: 465,
+    domain: 'origin8lab.com',
+    user_name: 'info@origin8lab.com',
+    password: 'Eniola85$',
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+  config.action_mailer.default_url_options = { host: 'mail.origin8lab.com', protocol: 'https' }
 end
