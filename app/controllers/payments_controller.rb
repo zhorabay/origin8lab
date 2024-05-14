@@ -23,7 +23,9 @@ class PaymentsController < ApplicationController
 
     @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
 
-    UserMailer.welcome_email(@user).deliver_later
+    if @user.save && @course.save
+      UserMailer.welcome_email(@user).deliver_later
+    end
 
     render json: { message: 'Payment received successfully' }, status: :ok
   end
