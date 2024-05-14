@@ -103,8 +103,8 @@ Rails.application.configure do
     password: ENV['SMTP_PASSWORD'],
     authentication: :plain,
     enable_starttls_auto: true,
-    open_timeout: 120,
-    read_timeout: 120 
+    open_timeout: 30,
+    read_timeout: 30 
   }
   config.action_mailer.default_url_options = { host: ENV['SMTP_DOMAIN'], protocol: 'https' }  
 end
