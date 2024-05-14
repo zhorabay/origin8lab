@@ -12,10 +12,11 @@ class Api::V1::UsersController < ApplicationController
 
   def create
     @api_user = User.new(api_user_params)
-    @api_user.password = generate_random_password
+    password = generate_random_password
+    @api_user.password = password
 
     if @api_user.save
-      send_password_to_user(@api_user)
+      send_password_to_user(@api_user, password)
       token = AuthenticationTokenService.encode(@api_user.id, ENV.fetch('HMAC_SECRET'))
       render json: { user: @api_user, token: token }, status: :created
     else
@@ -55,8 +56,8 @@ class Api::V1::UsersController < ApplicationController
     SecureRandom.hex(8)
   end
 
-  def send_password_to_user(api_user)
-    UserMailer.welcome_email(api_user).deliver_later
+  def send_password_to_user(api_user, password)
+    UserMailer.welcome_email(api_user, password).deliver_later
   end
 
   def render_users_json
