@@ -24,7 +24,7 @@ class PaymentsController < ApplicationController
 
     send_welcome_email(@user)
 
-    render json: { message: 'Payment received successfully' }, status: :ok
+    render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
   end
 
   private
