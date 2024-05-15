@@ -1,4 +1,6 @@
 class PaymentsController < ApplicationController
+  before_action :set_api_user, only: %i[handle_success]
+
   def handle_success
     Rails.logger.debug("Received parameters: #{params.inspect}") # Log received parameters
 
@@ -29,7 +31,7 @@ class PaymentsController < ApplicationController
 
     password = generate_random_password
     create_user_with_password(user_params, password)
-    send_welcome_email(@user)
+    send_welcome_email(@user, password)
 
     render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
   end
