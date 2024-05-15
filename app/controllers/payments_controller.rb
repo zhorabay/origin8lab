@@ -8,21 +8,21 @@ class PaymentsController < ApplicationController
       return
     end
 
-    @api_user = User.find_by(id: params[:userId]) # Use @api_user instead of @user
+    @api_user = User.find_by(id: params[:userId])
     unless @api_user
       render json: { error: 'User not found' }, status: :not_found
       return
     end
 
-    if @api_user.courses.exists?(@course.id) # Use @api_user instead of @user
+    if @api_user.courses.exists?(@course.id)
       render json: { error: 'User has already paid for this course' }, status: :unprocessable_entity
       return
     end
 
-    @api_user.courses << @course # Use @api_user instead of @user
+    @api_user.courses << @course
     @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
 
-    send_welcome_email(@api_user) # Use @api_user instead of @user
+    send_welcome_email(@api_user)
 
     render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
   end
@@ -30,7 +30,7 @@ class PaymentsController < ApplicationController
   private
 
   def send_welcome_email(user)
-    password = user.password || generate_random_password
+    password = user.password
     UserMailer.welcome_email(user, password).deliver_later
   end
 end
