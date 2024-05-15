@@ -12,8 +12,6 @@ class Api::V1::UsersController < ApplicationController
 
   def create
     @api_user = User.new(api_user_params)
-    password = generate_random_password
-    @api_user.password = password
 
     if @api_user.save
       token = AuthenticationTokenService.encode(@api_user.id, ENV.fetch('HMAC_SECRET'))
@@ -49,10 +47,6 @@ class Api::V1::UsersController < ApplicationController
 
   def api_user_params
     params.require(:user).permit(:name, :phone_number, :email, :whatsapp, :gender, :nationality, :birthdate, :surname, :userId)
-  end
-
-  def generate_random_password
-    SecureRandom.hex(8)
   end
 
   def render_users_json
