@@ -22,15 +22,6 @@ class PaymentsController < ApplicationController
     @api_user.courses << @course
     @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
 
-    send_welcome_email(@api_user)
-
     render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
-  end
-
-  private
-
-  def send_welcome_email(user)
-    password = user.password
-    UserMailer.welcome_email(user, password).deliver_later
   end
 end
