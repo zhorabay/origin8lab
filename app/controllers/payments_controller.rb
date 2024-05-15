@@ -30,7 +30,7 @@ class PaymentsController < ApplicationController
   private
 
   def send_welcome_email(user)
-    password = user.password
+    password = user.password || generate_random_password
     UserMailer.welcome_email(user, password).deliver_later
   end
 end
