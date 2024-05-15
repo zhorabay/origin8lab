@@ -22,6 +22,11 @@ class PaymentsController < ApplicationController
     @user.courses << @course
     @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
 
+    @course.course_modules.each do |course_module|
+      Rails.logger.debug("Course Module ID: #{course_module.id}, Payment Status: #{course_module.payment_status}")
+      puts "Course Module ID: #{course_module.id}, Payment Status: #{course_module.payment_status}"
+    end
+
     send_welcome_email(@user)
 
     render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
