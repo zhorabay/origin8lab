@@ -35,6 +35,7 @@ class PaymentsController < ApplicationController
   private
 
   def send_welcome_email(user)
-    UserMailer.welcome_email(user, user.password).deliver_later
+    password = user.password
+    UserMailer.welcome_email(user, password).deliver_later
   end
 end
