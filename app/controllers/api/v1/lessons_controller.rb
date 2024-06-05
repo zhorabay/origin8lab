@@ -1,4 +1,5 @@
 class Api::V1::LessonsController < ApplicationController
+  include Rails.application.routes.url_helpers
   skip_before_action :verify_authenticity_token
   before_action :set_lesson, only: %i[show update destroy]
 
@@ -18,9 +19,13 @@ class Api::V1::LessonsController < ApplicationController
 
   def create
     @lesson = Lesson.new(lesson_params)
-
-    @lesson.video.attach(params[:lesson][:video]) if params[:lesson][:video].present?
-
+  
+    if params[:lesson][:files].present?
+      params[:lesson][:files].each do |file|
+        @lesson.files.attach(file)
+      end
+    end
+  
     if @lesson.save
       render_lesson_json(@lesson, :created)
     else
@@ -30,6 +35,7 @@ class Api::V1::LessonsController < ApplicationController
 
   def update
     if @lesson.update(lesson_params)
+      @lesson.files.attach(params[:lesson][:files]) if params[:lesson][:files].present?
       render_lesson_json(@lesson)
     else
       render_error_response(@lesson.errors.full_messages, :unprocessable_entity)
@@ -52,35 +58,40 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, :video)
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
   end
 
-  def render_lessons_with_video(lessons)
+  def render_lessons_with_files(lessons)
     if lessons.present?
-      render json: { success: true, lessons: lessons.map { |lesson| lesson_with_video_json(lesson) } }
+      render json: { success: true, lessons: lessons.map { |lesson| lesson_with_files_json(lesson) } }
     else
       render json: { success: false, message: 'No lessons found' }
     end
   end
 
-  def render_lesson_with_video(lesson)
+  def render_lesson_with_files(lesson)
     if lesson.present?
-      render json: { success: true, lesson: lesson_with_video_json(lesson) }
+      render json: { success: true, lesson: lesson_with_files_json(lesson) }
     else
       render_lesson_not_found
     end
   end
 
   def render_lesson_json(lesson, status = :ok)
-    render json: { success: true, lesson: lesson_with_video_json(lesson) }, status: status
+    render json: { success: true, lesson: lesson_with_files_json(lesson) }, status: status
   end
 
-  def lesson_with_video_json(lesson)
+  def lesson_with_files_json(lesson)
     return {} unless lesson.present?
 
     lesson_attributes = lesson.as_json
-    lesson_attributes.merge(video: url_for(lesson.video)) if lesson.video.attached?
-  end
+
+    lesson_attributes.merge!(
+      files: lesson.files.map { |file| { url: url_for(file), filename: file.filename.to_s, content_type: file.content_type } }
+    )
+
+    lesson_attributes
+  end  
 
   def render_error_response(errors, status)
     render json: { success: false, message: errors }, status: status
