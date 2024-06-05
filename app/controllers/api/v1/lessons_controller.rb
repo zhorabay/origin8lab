@@ -10,11 +10,11 @@ class Api::V1::LessonsController < ApplicationController
     else
       @lessons = Lesson.all
     end
-    render_lessons_with_video(@lessons)
+    render_lessons_with_files(@lessons)
   end
 
   def show
-    render_lesson_with_video(@lesson)
+    render_lesson_with_files(@lesson)
   end
 
   def create
@@ -53,7 +53,7 @@ class Api::V1::LessonsController < ApplicationController
   private
 
   def set_lesson
-    @lesson = Lesson.includes(:video_attachment).find_by(id: params[:id])
+    @lesson = Lesson.includes(:files_attachment).find_by(id: params[:id])
     render_lesson_not_found unless @lesson
   end
 
