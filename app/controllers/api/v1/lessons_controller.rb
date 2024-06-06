@@ -53,7 +53,7 @@ class Api::V1::LessonsController < ApplicationController
   private
 
   def set_lesson
-    @lesson = Lesson.includes(:files_attachment).find_by(id: params[:id])
+    @lesson = Lesson.includes(:files_attachments).find_by(id: params[:id])
     render_lesson_not_found unless @lesson
   end
 
