@@ -19,13 +19,17 @@ class Api::V1::LessonsController < ApplicationController
 
   def create
     @lesson = Lesson.new(lesson_params)
-  
+
     if params[:lesson][:files].present?
-      params[:lesson][:files].each do |file|
+      files = params[:lesson].delete(:files)
+      @lesson.save
+      files.each do |file|
         @lesson.files.attach(file)
       end
+    else
+      @lesson.save
     end
-  
+
     if @lesson.save
       render_lesson_json(@lesson, :created)
     else
