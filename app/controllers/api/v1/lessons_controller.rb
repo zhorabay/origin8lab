@@ -1,5 +1,4 @@
 require 'aws-sdk-s3'
-require 'securerandom'
 
 class Api::V1::LessonsController < ApplicationController
   include Rails.application.routes.url_helpers
@@ -24,7 +23,7 @@ class Api::V1::LessonsController < ApplicationController
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
-
+  
     begin
       if @lesson.save
         Rails.logger.info("Lesson saved successfully")
@@ -33,9 +32,8 @@ class Api::V1::LessonsController < ApplicationController
           files = params[:lesson][:files]
           files.each do |file|
             begin
-              unique_id = SecureRandom.uuid
-              upload_file_to_s3(file, unique_id)
-              @lesson.files.attach(io: file.tempfile, filename: unique_id, content_type: file.content_type)
+              upload_file_to_s3(file)
+              @lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
             rescue => e
               Rails.logger.error("File upload error: #{e.message}")
               render json: { success: false, message: "File upload error: #{e.message}" }, status: :unprocessable_entity
@@ -45,7 +43,7 @@ class Api::V1::LessonsController < ApplicationController
         end
         render_lesson_json(@lesson, :created)
       else
-        Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
+        Rails.logger.error("Lesson save errors: #{lesson_params.errors.full_messages}")
         render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
       end
     rescue => e
@@ -120,22 +118,24 @@ class Api::V1::LessonsController < ApplicationController
     render json: { success: false, message: 'Lesson not found' }, status: :not_found
   end
 
-  def upload_file_to_s3(file, unique_id)
+  def upload_file_to_s3(file)
     s3_client = Aws::S3::Client.new(
       region: ENV['AWS_REGION'],
       credentials: Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
     )
 
+    key = "#{Time.now.strftime('%Y%m%d%H%M%S')}"
+  
     multipart_uploader = Aws::S3::MultipartFileUploader.new(
       client: s3_client,
       bucket: ENV['AWS_BUCKET'],
-      key: 8,
+      key: key,
       multipart_threshold: 15.megabytes,
       max_concurrent_uploads: 5
     )
 
-    Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{unique_id}")
+    Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{key}")
     multipart_uploader.upload(file.tempfile)
-    Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{unique_id}")
+    Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{key}")
   end
 end
