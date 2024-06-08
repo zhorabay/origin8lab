@@ -23,7 +23,7 @@ class Api::V1::LessonsController < ApplicationController
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
-  
+
     begin
       if @lesson.save
         Rails.logger.info("Lesson saved successfully")
@@ -31,6 +31,10 @@ class Api::V1::LessonsController < ApplicationController
           Rails.logger.info("Files present, initiating upload")
           files = params[:lesson][:files]
           files.each do |file|
+            unless file.is_a?(ActionDispatch::Http::UploadedFile)
+              render json: { success: false, message: "Invalid file type" }, status: :unprocessable_entity
+              return
+            end
             begin
               upload_file_to_s3(file)
               @lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
@@ -43,7 +47,7 @@ class Api::V1::LessonsController < ApplicationController
         end
         render_lesson_json(@lesson, :created)
       else
-        Rails.logger.error("Lesson save errors: #{lesson_params.errors.full_messages}")
+        Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
         render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
       end
     rescue => e
@@ -105,7 +109,13 @@ class Api::V1::LessonsController < ApplicationController
 
     lesson_attributes = lesson.as_json
     lesson_attributes.merge!(
-      files: lesson.files.map { |file| { url: url_for(file), filename: file.filename, content_type: file.content_type } }
+      files: lesson.files.map do |file|
+        {
+          url: url_for(file),
+          filename: file.filename.to_s,
+          content_type: file.content_type
+        }
+      end
     )
     lesson_attributes
   end
@@ -131,8 +141,15 @@ class Api::V1::LessonsController < ApplicationController
       max_concurrent_uploads: 5
     )
 
+    key = "uploads/#{file.original_filename}"
     Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{key}")
-    multipart_uploader.upload(file.tempfile)
-    Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{key}")
+
+    begin
+      multipart_uploader.upload(file.tempfile)
+      Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{key}")
+    rescue => e
+      Rails.logger.error("S3 upload error: #{e.message}")
+      raise e
+    end
   end
 end
