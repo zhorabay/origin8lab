@@ -23,12 +23,10 @@ class Api::V1::LessonsController < ApplicationController
   def create
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
-
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
 
     if @lesson.save
       Rails.logger.info("Lesson saved successfully")
-
       if params[:lesson][:files].present?
         Rails.logger.info("Files present, initiating upload")
         files = params[:lesson][:files]
@@ -44,7 +42,6 @@ class Api::V1::LessonsController < ApplicationController
           end
         end
       end
-
       render_lesson_json(@lesson, :created)
     else
       Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
@@ -104,11 +101,9 @@ class Api::V1::LessonsController < ApplicationController
     return {} unless lesson.present?
 
     lesson_attributes = lesson.as_json
-
     lesson_attributes.merge!(
       files: lesson.files.map { |file| { url: url_for(file), filename: file.filename.to_s, content_type: file.content_type } }
     )
-
     lesson_attributes
   end
 
@@ -126,7 +121,7 @@ class Api::V1::LessonsController < ApplicationController
       credentials: Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
     )
 
-    uploader = Aws::S3::MultipartFileUploader.new(
+    multipart_uploader = Aws::S3::MultipartFileUploader.new(
       client: s3_client,
       bucket: ENV['AWS_BUCKET'],
       key: unique_id,
@@ -135,8 +130,7 @@ class Api::V1::LessonsController < ApplicationController
     )
 
     Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{unique_id}")
-
-    uploader.upload(file.tempfile)
+    multipart_uploader.upload(file.tempfile)
     Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{unique_id}")
   end
 end
