@@ -21,17 +21,24 @@ class Api::V1::LessonsController < ApplicationController
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
 
-    if params[:lesson][:files].present?
-      files = params[:lesson].delete(:files)
-      @lesson.save
-      files.each do |file|
-        @lesson.files.attach(file)
-      end
-    else
-      @lesson.save
-    end
+    @lesson.some_attribute = params[:lesson][:some_attribute] if params[:lesson].key?(:some_attribute)
+    @lesson.some_other_attribute = params[:lesson][:some_other_attribute] if params[:lesson].key?(:some_other_attribute)
+
+    Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
+    Rails.logger.info("Some attribute: #{@lesson.some_attribute} (#{@lesson.some_attribute.class})")
+    Rails.logger.info("Some other attribute: #{@lesson.some_other_attribute} (#{@lesson.some_other_attribute.class})")
 
     if @lesson.save
+      Rails.logger.info("Lesson saved successfully")
+
+      if params[:lesson][:files].present?
+        Rails.logger.info("Files present, attaching now")
+        files = params[:lesson][:files]
+        files.each do |file|
+          @lesson.files.attach(file)
+        end
+      end
+
       render_lesson_json(@lesson, :created)
     else
       Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
