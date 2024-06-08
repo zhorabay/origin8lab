@@ -23,5 +23,4 @@ uploader = Aws::S3::MultipartFileUploader.new({
   max_concurrent_uploads: max_concurrent_uploads
 })
 
-Rails.logger.info("Custom uploader multipart threshold: #{uploader.multipart_threshold}")
-Rails.logger.info("Custom uploader max concurrent uploads: #{uploader.max_concurrent_uploads}")
+Rails.logger.info("Custom uploader created successfully")
