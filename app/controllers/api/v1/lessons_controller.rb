@@ -129,7 +129,7 @@ class Api::V1::LessonsController < ApplicationController
     multipart_uploader = Aws::S3::MultipartFileUploader.new(
       client: s3_client,
       bucket: ENV['AWS_BUCKET'],
-      key: unique_id,
+      key = "#{Time.now.strftime('%Y%m%d%H%M%S')}_#{SecureRandom.hex(8)}",
       multipart_threshold: 15.megabytes,
       max_concurrent_uploads: 5
     )

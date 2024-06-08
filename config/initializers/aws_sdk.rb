@@ -1,6 +1,5 @@
 require 'aws-sdk-s3'
-
-unique_id = SecureRandom.uuid
+require 'securerandom'
 
 Aws.config.update({
   region: ENV['AWS_REGION'],
@@ -18,7 +17,7 @@ Rails.logger.info("AWS S3 Max concurrent uploads: #{max_concurrent_uploads}")
 uploader = Aws::S3::MultipartFileUploader.new({
   client: s3_client,
   bucket: ENV['AWS_BUCKET'],
-  key: unique_id,
+  key: key = "#{Time.now.strftime('%Y%m%d%H%M%S')}_#{SecureRandom.hex(8)}",
   multipart_threshold: multipart_threshold,
   max_concurrent_uploads: max_concurrent_uploads
 })
