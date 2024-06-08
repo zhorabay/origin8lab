@@ -1,3 +1,6 @@
+require 'aws-sdk-s3'
+require 'securerandom'
+
 class Api::V1::LessonsController < ApplicationController
   include Rails.application.routes.url_helpers
   skip_before_action :verify_authenticity_token
@@ -27,10 +30,18 @@ class Api::V1::LessonsController < ApplicationController
       Rails.logger.info("Lesson saved successfully")
 
       if params[:lesson][:files].present?
-        Rails.logger.info("Files present, attaching now")
+        Rails.logger.info("Files present, initiating upload")
         files = params[:lesson][:files]
         files.each do |file|
-          @lesson.files.attach(file)
+          begin
+            unique_id = SecureRandom.uuid
+            upload_file_to_s3(file, unique_id)
+            @lesson.files.attach(io: file.tempfile, filename: unique_id, content_type: file.content_type)
+          rescue => e
+            Rails.logger.error("File upload error: #{e.message}")
+            render json: { success: false, message: "File upload error: #{e.message}" }, status: :unprocessable_entity
+            return
+          end
         end
       end
 
@@ -99,7 +110,7 @@ class Api::V1::LessonsController < ApplicationController
     )
 
     lesson_attributes
-  end  
+  end
 
   def render_error_response(errors, status)
     render json: { success: false, message: errors }, status: status
@@ -107,5 +118,25 @@ class Api::V1::LessonsController < ApplicationController
 
   def render_lesson_not_found
     render json: { success: false, message: 'Lesson not found' }, status: :not_found
+  end
+
+  def upload_file_to_s3(file, unique_id)
+    s3_client = Aws::S3::Client.new(
+      region: ENV['AWS_REGION'],
+      credentials: Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+    )
+
+    uploader = Aws::S3::MultipartFileUploader.new(
+      client: s3_client,
+      bucket: ENV['AWS_BUCKET'],
+      key: unique_id,
+      multipart_threshold: 15.megabytes,
+      max_concurrent_uploads: 5
+    )
+
+    Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{unique_id}")
+
+    uploader.upload(file.tempfile)
+    Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{unique_id}")
   end
 end
