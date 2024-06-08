@@ -12,6 +12,6 @@ amazon:
   secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
   region: <%= ENV['AWS_REGION'] %>
   bucket: <%= ENV['AWS_BUCKET'] %>
-  upload:
-    multipart_threshold: 15.megabytes
-    max_concurrent_uploads: 5
+  # upload:
+  #   multipart_threshold: 15.megabytes
+  #   max_concurrent_uploads: 5
