@@ -79,9 +79,7 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, files: []).tap do |lesson_params|
-      lesson_params[:course_module_id] = lesson_params[:course_module_id].to_i if lesson_params[:course_module_id].present?
-    end
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
   end
 
   def render_lessons_with_files(lessons)
@@ -109,7 +107,7 @@ class Api::V1::LessonsController < ApplicationController
 
     lesson_attributes = lesson.as_json
     lesson_attributes.merge!(
-      files: lesson.files.map { |file| { url: url_for(file), filename: file.filename.to_s, content_type: file.content_type } }
+      files: lesson.files.map { |file| { url: url_for(file), filename: file.filename, content_type: file.content_type } }
     )
     lesson_attributes
   end
