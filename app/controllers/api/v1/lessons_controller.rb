@@ -25,27 +25,32 @@ class Api::V1::LessonsController < ApplicationController
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
 
-    if @lesson.save
-      Rails.logger.info("Lesson saved successfully")
-      if params[:lesson][:files].present?
-        Rails.logger.info("Files present, initiating upload")
-        files = params[:lesson][:files]
-        files.each do |file|
-          begin
-            unique_id = SecureRandom.uuid
-            upload_file_to_s3(file, unique_id)
-            @lesson.files.attach(io: file.tempfile, filename: unique_id, content_type: file.content_type)
-          rescue => e
-            Rails.logger.error("File upload error: #{e.message}")
-            render json: { success: false, message: "File upload error: #{e.message}" }, status: :unprocessable_entity
-            return
+    begin
+      if @lesson.save
+        Rails.logger.info("Lesson saved successfully")
+        if params[:lesson][:files].present?
+          Rails.logger.info("Files present, initiating upload")
+          files = params[:lesson][:files]
+          files.each do |file|
+            begin
+              unique_id = SecureRandom.uuid
+              upload_file_to_s3(file, unique_id)
+              @lesson.files.attach(io: file.tempfile, filename: unique_id, content_type: file.content_type)
+            rescue => e
+              Rails.logger.error("File upload error: #{e.message}")
+              render json: { success: false, message: "File upload error: #{e.message}" }, status: :unprocessable_entity
+              return
+            end
           end
         end
+        render_lesson_json(@lesson, :created)
+      else
+        Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
+        render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
       end
-      render_lesson_json(@lesson, :created)
-    else
-      Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
-      render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
+    rescue => e
+      Rails.logger.error("Unexpected error: #{e.message}")
+      render json: { success: false, message: "Unexpected error: #{e.message}" }, status: :internal_server_error
     end
   end
 
