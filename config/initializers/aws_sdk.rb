@@ -15,7 +15,8 @@ max_concurrent_uploads = 5
 Rails.logger.info("AWS S3 Multipart threshold: #{multipart_threshold}")
 Rails.logger.info("AWS S3 Max concurrent uploads: #{max_concurrent_uploads}")
 
-uploader = Aws::S3::MultipartFileUploader.new(s3_client, {
+uploader = Aws::S3::MultipartFileUploader.new({
+  client: s3_client,
   bucket: ENV['AWS_BUCKET'],
   key: unique_id,
   multipart_threshold: multipart_threshold,
