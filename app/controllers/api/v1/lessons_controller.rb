@@ -19,16 +19,22 @@ class Api::V1::LessonsController < ApplicationController
 
   def create
     @lesson = Lesson.new(lesson_params)
+    Rails.logger.info("Lesson params: #{lesson_params.inspect}")
+
+    if params[:lesson][:files].present?
+      files = params[:lesson].delete(:files)
+      @lesson.save
+      files.each do |file|
+        @lesson.files.attach(file)
+      end
+    else
+      @lesson.save
+    end
 
     if @lesson.save
-      if params[:lesson][:files].present?
-        files = params[:lesson].delete(:files)
-        files.each do |file|
-          @lesson.files.attach(file)
-        end
-      end
       render_lesson_json(@lesson, :created)
     else
+      Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
       render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
     end
   end

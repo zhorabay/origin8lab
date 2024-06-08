@@ -23,5 +23,19 @@ module Origin8lab
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', headers: :any, methods: [:get, :post, :put, :delete, :options], max_age: 0
+      end
+    end
+
+    config.action_dispatch.default_headers = {
+      'Access-Control-Allow-Origin' => '*',
+      'Access-Control-Request-Method' => %w{GET POST OPTIONS}.join(",")
+    }
+
+    config.active_storage.service_urls_expire_in = 5.minutes
+    config.active_storage.variant_processor = :mini_magick
   end
 end
