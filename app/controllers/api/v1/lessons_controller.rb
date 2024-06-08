@@ -22,8 +22,6 @@ class Api::V1::LessonsController < ApplicationController
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
 
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
-    Rails.logger.info("Some attribute: #{@lesson.some_attribute} (#{@lesson.some_attribute.class})")
-    Rails.logger.info("Some other attribute: #{@lesson.some_other_attribute} (#{@lesson.some_other_attribute.class})")
 
     if @lesson.save
       Rails.logger.info("Lesson saved successfully")
