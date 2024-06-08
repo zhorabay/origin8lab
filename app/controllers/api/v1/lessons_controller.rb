@@ -5,6 +5,7 @@ class Api::V1::LessonsController < ApplicationController
 
   def index
     if params[:course_module_id]
+      Rails.logger.info("Course Module ID: #{params[:course_module_id]}")
       course_module = CourseModule.find_by(id: params[:course_module_id].to_i)
       @lessons = course_module ? course_module.lessons : Lesson.all
     else
@@ -18,8 +19,9 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def create
+    Rails.logger.info("Received params: #{params.inspect}")
+    lesson_params = lesson_params_with_conversions
     @lesson = Lesson.new(lesson_params)
-    Rails.logger.info("Lesson params: #{lesson_params.inspect}")
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes.inspect}")
 
     begin
@@ -28,13 +30,7 @@ class Api::V1::LessonsController < ApplicationController
         if params[:lesson][:files].present?
           Rails.logger.info("Files present, attaching to lesson")
           files = params[:lesson][:files]
-          files.each do |file|
-            unless file.is_a?(ActionDispatch::Http::UploadedFile)
-              render json: { success: false, message: "Invalid file type" }, status: :unprocessable_entity
-              return
-            end
-            @lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
-          end
+          attach_files_with_retries(@lesson, files)
         end
         render_lesson_json(@lesson, :created)
       else
@@ -48,8 +44,9 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def update
+    lesson_params = lesson_params_with_conversions
     if @lesson.update(lesson_params)
-      @lesson.files.attach(params[:lesson][:files]) if params[:lesson][:files].present?
+      attach_files_with_retries(@lesson, params[:lesson][:files]) if params[:lesson][:files].present?
       render_lesson_json(@lesson)
     else
       render_error_response(@lesson.errors.full_messages, :unprocessable_entity)
@@ -71,10 +68,14 @@ class Api::V1::LessonsController < ApplicationController
     render_lesson_not_found unless @lesson
   end
 
-  def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, files: []).tap do |lesson_params|
-      lesson_params[:course_module_id] = lesson_params[:course_module_id].to_i if lesson_params[:course_module_id]
+  def lesson_params_with_conversions
+    lesson_params.tap do |lp|
+      lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
     end
+  end
+
+  def lesson_params
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
   end
 
   def render_lessons_with_files(lessons)
@@ -119,5 +120,25 @@ class Api::V1::LessonsController < ApplicationController
 
   def render_lesson_not_found
     render json: { success: false, message: 'Lesson not found' }, status: :not_found
+  end
+
+  def attach_files_with_retries(lesson, files, retries = 3)
+    files.each do |file|
+      next unless file.is_a?(ActionDispatch::Http::UploadedFile)
+
+      begin
+        Rails.logger.info("Attempting to attach file: #{file.original_filename}")
+        lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
+        Rails.logger.info("File attached successfully: #{file.original_filename}")
+      rescue ActiveStorage::IntegrityError => e
+        if (retries -= 1) > 0
+          Rails.logger.warn("Integrity error detected, retrying... (#{retries} retries left)")
+          retry
+        else
+          Rails.logger.error("Failed to attach file after multiple attempts: #{file.original_filename}")
+          raise e
+        end
+      end
+    end
   end
 end
