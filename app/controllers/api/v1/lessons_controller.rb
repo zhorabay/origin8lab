@@ -21,18 +21,6 @@ class Api::V1::LessonsController < ApplicationController
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
 
-    if params[:lesson].key?(:some_attribute)
-      @lesson.some_attribute = params[:lesson][:some_attribute]
-    else
-      Rails.logger.warn("Missing some_attribute in params")
-    end
-
-    if params[:lesson].key?(:some_other_attribute)
-      @lesson.some_other_attribute = params[:lesson][:some_other_attribute]
-    else
-      Rails.logger.warn("Missing some_other_attribute in params")
-    end
-
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
     Rails.logger.info("Some attribute: #{@lesson.some_attribute} (#{@lesson.some_attribute.class})")
     Rails.logger.info("Some other attribute: #{@lesson.some_other_attribute} (#{@lesson.some_other_attribute.class})")
