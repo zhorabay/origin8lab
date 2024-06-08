@@ -1,5 +1,3 @@
-require 'aws-sdk-s3'
-
 class Api::V1::LessonsController < ApplicationController
   include Rails.application.routes.url_helpers
   skip_before_action :verify_authenticity_token
