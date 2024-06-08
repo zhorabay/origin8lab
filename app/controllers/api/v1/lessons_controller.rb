@@ -32,6 +32,7 @@ class Api::V1::LessonsController < ApplicationController
           files = params[:lesson][:files]
           attach_files_with_retries(@lesson, files)
         end
+        Rails.logger.info("Final lesson data: #{lesson_with_files_json(@lesson)}")
         render_lesson_json(@lesson, :created)
       else
         Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
