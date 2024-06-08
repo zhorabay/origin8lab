@@ -1,5 +1,7 @@
 require 'aws-sdk-s3'
 
+unique_id = SecureRandom.uuid
+
 Aws.config.update({
   region: ENV['AWS_REGION'],
   credentials: Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY']),
@@ -13,7 +15,7 @@ max_concurrent_uploads = 5
 Rails.logger.info("AWS S3 Multipart threshold: #{multipart_threshold}")
 Rails.logger.info("AWS S3 Max concurrent uploads: #{max_concurrent_uploads}")
 
-uploader = Aws::S3::MultipartFileUploader.new(s3_client, ENV['AWS_BUCKET'], 'lessons/8', {
+uploader = Aws::S3::MultipartFileUploader.new(s3_client, ENV['AWS_BUCKET'], "#{unique_id}", {
   multipart_threshold: multipart_threshold,
   max_concurrent_uploads: max_concurrent_uploads
 })
