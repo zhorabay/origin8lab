@@ -8,7 +8,7 @@ class Api::V1::LessonsController < ApplicationController
 
   def index
     if params[:course_module_id]
-      course_module = CourseModule.find_by(id: params[:course_module_id])
+      course_module = CourseModule.find_by(id: params[:course_module_id].to_i)
       @lessons = course_module ? course_module.lessons : Lesson.all
     else
       @lessons = Lesson.all
@@ -79,7 +79,9 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: []).tap do |lesson_params|
+      lesson_params[:course_module_id] = lesson_params[:course_module_id].to_i if lesson_params[:course_module_id].present?
+    end
   end
 
   def render_lessons_with_files(lessons)
