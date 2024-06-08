@@ -22,27 +22,20 @@ class Api::V1::LessonsController < ApplicationController
   def create
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson params: #{lesson_params.inspect}")
-    Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
+    Rails.logger.info("Lesson attributes before save: #{@lesson.attributes.inspect}")
 
     begin
       if @lesson.save
-        Rails.logger.info("Lesson saved successfully")
+        Rails.logger.info("Lesson saved successfully: #{@lesson.id}")
         if params[:lesson][:files].present?
-          Rails.logger.info("Files present, initiating upload")
+          Rails.logger.info("Files present, attaching to lesson")
           files = params[:lesson][:files]
           files.each do |file|
             unless file.is_a?(ActionDispatch::Http::UploadedFile)
               render json: { success: false, message: "Invalid file type" }, status: :unprocessable_entity
               return
             end
-            begin
-              upload_file_to_s3(file)
-              @lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
-            rescue => e
-              Rails.logger.error("File upload error: #{e.message}")
-              render json: { success: false, message: "File upload error: #{e.message}" }, status: :unprocessable_entity
-              return
-            end
+            @lesson.files.attach(io: file.tempfile, filename: file.original_filename, content_type: file.content_type)
           end
         end
         render_lesson_json(@lesson, :created)
@@ -81,7 +74,9 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: []).tap do |lesson_params|
+      lesson_params[:course_module_id] = lesson_params[:course_module_id].to_i if lesson_params[:course_module_id]
+    end
   end
 
   def render_lessons_with_files(lessons)
@@ -126,30 +121,5 @@ class Api::V1::LessonsController < ApplicationController
 
   def render_lesson_not_found
     render json: { success: false, message: 'Lesson not found' }, status: :not_found
-  end
-
-  def upload_file_to_s3(file)
-    s3_client = Aws::S3::Client.new(
-      region: ENV['AWS_REGION'],
-      credentials: Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
-    )
-
-    multipart_uploader = Aws::S3::MultipartFileUploader.new(
-      client: s3_client,
-      bucket: ENV['AWS_BUCKET'],
-      multipart_threshold: 15.megabytes,
-      max_concurrent_uploads: 5
-    )
-
-    key = "uploads/#{file.original_filename}"
-    Rails.logger.info("Uploading file #{file.original_filename} to S3 with key #{key}")
-
-    begin
-      multipart_uploader.upload(file.tempfile)
-      Rails.logger.info("File #{file.original_filename} uploaded successfully to S3 with key #{key}")
-    rescue => e
-      Rails.logger.error("S3 upload error: #{e.message}")
-      raise e
-    end
   end
 end
