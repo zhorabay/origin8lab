@@ -3,6 +3,8 @@ class Lesson < ApplicationRecord
   has_many :comments
   has_many_attached :files
 
+  attr_accessor :some_attribute, :some_other_attribute
+
   validate :check_types
 
   def check_types
