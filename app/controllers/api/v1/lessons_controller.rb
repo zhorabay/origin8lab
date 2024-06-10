@@ -72,11 +72,12 @@ class Api::V1::LessonsController < ApplicationController
   def lesson_params_with_conversions
     lesson_params.tap do |lp|
       lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
+      lp[:google_form_links] = lp[:google_form_links].reject(&:blank?) if lp[:google_form_links].present?
     end
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, :google_form_link, files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, google_form_links: [], files: [])
   end
 
   def render_lessons_with_files(lessons)
@@ -110,8 +111,7 @@ class Api::V1::LessonsController < ApplicationController
           filename: file.filename.to_s,
           content_type: file.content_type
         }
-      end,
-      google_form_link: lesson.google_form_link
+      end
     )
     lesson_attributes
   end
