@@ -72,12 +72,11 @@ class Api::V1::LessonsController < ApplicationController
   def lesson_params_with_conversions
     lesson_params.tap do |lp|
       lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
-      lp[:google_form_links] ||= []
     end
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, google_form_links: [], files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
   end
 
   def render_lessons_with_files(lessons)
