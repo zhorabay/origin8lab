@@ -5,15 +5,4 @@ class Lesson < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
-  validate :valid_google_form_links
-
-  private
-
-  def valid_google_form_links
-    return unless google_form_links.is_a?(Array)
-
-    google_form_links.each do |link|
-      errors.add(:google_form_links, "Invalid link: #{link}") unless link.is_a?(String)
-    end
-  end
 end
