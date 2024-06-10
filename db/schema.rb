@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_05_15_134046) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_10_211727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -126,6 +126,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_05_15_134046) do
     t.bigint "course_module_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "google_form_link"
     t.index ["course_module_id"], name: "index_lessons_on_course_module_id"
   end
 

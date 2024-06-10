@@ -76,7 +76,7 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, :google_form_link, files: [])
   end
 
   def render_lessons_with_files(lessons)
@@ -110,7 +110,8 @@ class Api::V1::LessonsController < ApplicationController
           filename: file.filename.to_s,
           content_type: file.content_type
         }
-      end
+      end,
+      google_form_link: lesson.google_form_link
     )
     lesson_attributes
   end
