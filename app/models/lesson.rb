@@ -12,10 +12,10 @@ class Lesson < ApplicationRecord
   private
 
   def valid_google_form_links
-    (google_form_links || []).each do |link|
-      unless link =~ /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/
-        errors.add(:google_form_links, "Invalid URL: #{link}")
-      end
+    return unless google_form_links.is_a?(Array)
+
+    google_form_links.each do |link|
+      errors.add(:google_form_links, "Invalid link: #{link}") unless link.is_a?(String)
     end
   end
 end
