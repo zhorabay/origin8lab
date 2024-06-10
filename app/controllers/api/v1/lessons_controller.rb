@@ -72,7 +72,6 @@ class Api::V1::LessonsController < ApplicationController
   def lesson_params_with_conversions
     lesson_params.tap do |lp|
       lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
-      lp[:google_form_links] = lp[:google_form_links].reject(&:blank?) if lp[:google_form_links].present?
     end
   end
 
