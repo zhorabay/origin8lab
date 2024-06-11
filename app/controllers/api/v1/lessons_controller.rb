@@ -73,7 +73,7 @@ class Api::V1::LessonsController < ApplicationController
   def lesson_params_with_conversions
     lesson_params.tap do |lp|
       lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
-      lp[:google_form_links] = params[:lesson][:google_form_links] || [] if params[:lesson].present?
+      lp[:google_form_links] = lp.dig(:google_form_links) || [] if lp.present?
       lp[:google_form_links].reject!(&:blank?)
       Rails.logger.info("Converted lesson params: #{lp.inspect}")
     end
