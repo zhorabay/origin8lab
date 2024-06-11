@@ -5,4 +5,6 @@ class Lesson < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
+
+  enum payment_status: { unpaid: 0, paid: 1 }
 end

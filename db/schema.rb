@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_10_222613) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_11_085900) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -128,6 +128,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_10_222613) do
     t.datetime "updated_at", null: false
     t.string "google_form_link"
     t.jsonb "google_form_links"
+    t.integer "payment_status", default: 0, null: false
     t.index ["course_module_id"], name: "index_lessons_on_course_module_id"
   end
 
