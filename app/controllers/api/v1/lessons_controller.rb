@@ -21,6 +21,7 @@ class Api::V1::LessonsController < ApplicationController
   def create
     Rails.logger.info("Received params: #{params.inspect}")
     lesson_params = lesson_params_with_conversions
+    Rails.logger.info("Processed lesson params: #{lesson_params.inspect}")
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes.inspect}")
 
@@ -74,6 +75,7 @@ class Api::V1::LessonsController < ApplicationController
       lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
       lp[:google_form_links] = lp.dig(:lesson, :google_form_links) || []
       lp[:google_form_links].reject!(&:blank?)
+      Rails.logger.info("Converted lesson params: #{lp.inspect}")
     end
   end
 
