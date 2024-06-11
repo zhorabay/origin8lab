@@ -3,7 +3,7 @@ class Lesson < ApplicationRecord
   has_many :comments
   has_many_attached :files
 
-  serialize :google_form_links, Array
+  serialize :google_form_links, JSON
 
   validates :title, presence: true
   validates :description, presence: true
