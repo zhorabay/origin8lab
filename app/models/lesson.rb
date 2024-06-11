@@ -3,6 +3,8 @@ class Lesson < ApplicationRecord
   has_many :comments
   has_many_attached :files
 
+  serialize :google_form_links, Array
+
   validates :title, presence: true
   validates :description, presence: true
 
