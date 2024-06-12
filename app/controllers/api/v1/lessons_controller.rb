@@ -20,7 +20,7 @@ class Api::V1::LessonsController < ApplicationController
 
   def create
     Rails.logger.info("Received params: #{params.inspect}")
-    lesson_params = lesson_params_with_conversions
+    # lesson_params = lesson_params_with_conversions
     Rails.logger.info("Processed lesson params: #{lesson_params.inspect}")
     @lesson = Lesson.new(lesson_params)
     Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
@@ -46,7 +46,7 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def update
-    lesson_params = lesson_params_with_conversions
+    # lesson_params = lesson_params_with_conversions
     if @lesson.update(lesson_params)
       attach_files_with_retries(@lesson, params[:lesson][:files]) if params[:lesson][:files].present?
       render_lesson_json(@lesson)
@@ -70,12 +70,12 @@ class Api::V1::LessonsController < ApplicationController
     render_lesson_not_found unless @lesson
   end
 
-  def lesson_params_with_conversions
-    lesson_params.tap do |lp|
-      lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
-      lp[:google_form_links] = JSON.parse(lp[:google_form_links]) if lp[:google_form_links].present?
-    end
-  end
+  # def lesson_params_with_conversions
+  #   lesson_params.tap do |lp|
+  #     lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
+  #     lp[:google_form_links] = JSON.parse(lp[:google_form_links]) if lp[:google_form_links].present?
+  #   end
+  # end
 
   def lesson_params
     params.require(:lesson).permit(:course_module_id, :title, :description, :google_form_links => [])
