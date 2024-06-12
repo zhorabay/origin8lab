@@ -21,9 +21,6 @@ class PaymentsController < ApplicationController
 
     @api_user.courses << @course
     @course.course_modules.update_all(payment_status: CourseModule.payment_statuses[:paid])
-    @course.course_modules.each do |course_module|
-      course_module.lessons.update_all(payment_status: Lesson.payment_statuses[:paid])
-    end
 
     render json: { message: 'Payment received successfully', course_modules: @course.course_modules }, status: :ok
   end
