@@ -5,6 +5,9 @@ class Lesson < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
+  validate :validate_google_form_links_format
 
-  enum payment_status: { unpaid: 0, paid: 1 }
+  def validate_google_form_links_format
+    errors.add(:google_form_links, 'must be an array') unless google_form_links.is_a?(Array)
+  end
 end

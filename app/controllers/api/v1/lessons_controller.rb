@@ -20,9 +20,10 @@ class Api::V1::LessonsController < ApplicationController
 
   def create
     Rails.logger.info("Received params: #{params.inspect}")
+    lesson_params = lesson_params_with_conversions
     Rails.logger.info("Processed lesson params: #{lesson_params.inspect}")
     @lesson = Lesson.new(lesson_params)
-    Rails.logger.info("Lesson attributes before save: #{@lesson.attributes.inspect}")
+    Rails.logger.info("Lesson attributes before save: #{@lesson.attributes}")
 
     begin
       if @lesson.save
@@ -35,7 +36,7 @@ class Api::V1::LessonsController < ApplicationController
         Rails.logger.info("Final lesson data: #{lesson_with_files_json(@lesson)}")
         render_lesson_json(@lesson, :created)
       else
-        Rails.logger.error("Lesson save errors: #{@lesson.errors.full_messages}")
+        Rails.logger.error("Lesson save errors: #{lesson.errors.full_messages}")
         render json: { success: false, message: @lesson.errors.full_messages }, status: :unprocessable_entity
       end
     rescue => e
@@ -45,7 +46,7 @@ class Api::V1::LessonsController < ApplicationController
   end
 
   def update
-    # lesson_params = lesson_params_with_conversions
+    lesson_params = lesson_params_with_conversions
     if @lesson.update(lesson_params)
       attach_files_with_retries(@lesson, params[:lesson][:files]) if params[:lesson][:files].present?
       render_lesson_json(@lesson)
@@ -69,17 +70,15 @@ class Api::V1::LessonsController < ApplicationController
     render_lesson_not_found unless @lesson
   end
 
-  # def lesson_params_with_conversions
-  #   lesson_params.tap do |lp|
-  #     lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
-  #     lp[:google_form_links] = lp.dig(:google_form_links) || [] if lp.present?
-  #     lp[:google_form_links].reject!(&:blank?)
-  #     Rails.logger.info("Converted lesson params: #{lp.inspect}")
-  #   end
-  # end
+  def lesson_params_with_conversions
+    lesson_params.tap do |lp|
+      lp[:course_module_id] = lp[:course_module_id].to_i if lp[:course_module_id].present?
+      lp[:google_form_links] = JSON.parse(lp[:google_form_links]) if lp[:google_form_links].present?
+    end
+  end
 
   def lesson_params
-    params.require(:lesson).permit(:course_module_id, :title, :description, google_form_links: [], files: [])
+    params.require(:lesson).permit(:course_module_id, :title, :description, :google_form_links => [])
   end
 
   def render_lessons_with_files(lessons)
