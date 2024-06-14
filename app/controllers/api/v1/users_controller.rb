@@ -41,6 +41,16 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  def courses
+    user = User.find(params[:id])
+    if user
+      courses = user.courses
+      render json: courses, status: :ok
+    else
+      render json: { error: 'User not found' }, status: :not_found
+    end
+  end
+
   private
 
   def set_api_user
