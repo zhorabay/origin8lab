@@ -9,27 +9,31 @@ class UserMailer < ApplicationMailer
       secret_access_key: ENV['AWS_EMAIL_SECRET_ACCESS_KEY']
     )
 
-    ses.send_email({
-      destination: {
-        to_addresses: [@api_user.email],
-      },
-      message: {
-        body: {
-          html: {
-            charset: "UTF-8",
-            data: render_to_string(template: 'user_mailer/welcome_email', layout: false)
+    begin
+      ses.send_email({
+        destination: {
+          to_addresses: [@api_user.email],
+        },
+        message: {
+          body: {
+            html: {
+              charset: "UTF-8",
+              data: render_to_string(template: 'user_mailer/welcome_email.html.erb', layout: false)
+            },
+            text: {
+              charset: "UTF-8",
+              data: render_to_string(template: 'user_mailer/welcome_email.text.erb', layout: false)
+            }
           },
-          text: {
+          subject: {
             charset: "UTF-8",
-            data: render_to_string(template: 'user_mailer/welcome_email', layout: false)
+            data: "Welcome to Origin8lab!"
           }
         },
-        subject: {
-          charset: "UTF-8",
-          data: "Welcome to Origin8lab!"
-        }
-      },
-      source: "info@origin8lab.com"
-    })
+        source: "info@origin8lab.com"
+      })
+    rescue Aws::SES::Errors::ServiceError => e
+      Rails.logger.error "Email failed to send: #{e.message}"
+    end
   end
 end
