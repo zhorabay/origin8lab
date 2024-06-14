@@ -94,11 +94,14 @@ Rails.application.configure do
   # ]
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
-  config.action_mailer.delivery_method = :aws_sdk
-  config.action_mailer.aws_sdk_settings = {
-    access_key_id: ENV['AWS_EMAIL_ACCESS_KEY_ID'],
-    secret_access_key: ENV['AWS_EMAIL_SECRET_ACCESS_KEY'],
-    region: ENV['AWS_REGION']
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'email-smtp.eu-north-1.amazonaws.com',
+    port: 587,
+    user_name: ENV['AWS_SES_SMTP_USERNAME'],
+    password: ENV['AWS_SES_SMTP_PASSWORD'],
+    authentication: :login,
+    enable_starttls_auto: true
   }
 
   config.action_mailer.default_url_options = { host: 'origin8lab.com' }

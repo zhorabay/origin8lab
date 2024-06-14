@@ -2,6 +2,34 @@ class UserMailer < ApplicationMailer
   def welcome_email(api_user, password)
     @api_user = api_user
     @password = password
-    mail(to: @api_user.email, subject: 'Welcome to Origin8lab!')
+
+    ses = Aws::SES::Client.new(
+      region: ENV['AWS_REGION'],
+      access_key_id: ENV['AWS_EMAIL_ACCESS_KEY_ID'],
+      secret_access_key: ENV['AWS_EMAIL_SECRET_ACCESS_KEY']
+    )
+
+    ses.send_email({
+      destination: {
+        to_addresses: [@api_user.email],
+      },
+      message: {
+        body: {
+          html: {
+            charset: "UTF-8",
+            data: render_to_string(template: 'user_mailer/welcome_email', layout: false)
+          },
+          text: {
+            charset: "UTF-8",
+            data: render_to_string(template: 'user_mailer/welcome_email.text', layout: false)
+          }
+        },
+        subject: {
+          charset: "UTF-8",
+          data: "Welcome to Origin8lab!"
+        }
+      },
+      source: "info@origin8lab.com"
+    })
   end
 end
