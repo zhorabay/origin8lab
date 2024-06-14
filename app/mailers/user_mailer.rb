@@ -18,11 +18,11 @@ class UserMailer < ApplicationMailer
           body: {
             html: {
               charset: "UTF-8",
-              data: render_to_string(template: 'user_mailer/welcome_email.html.erb', layout: false)
+              data: render_to_string(template: 'user_mailer/welcome_email', layout: false)
             },
             text: {
               charset: "UTF-8",
-              data: render_to_string(template: 'user_mailer/welcome_email.text.erb', layout: false)
+              data: render_to_string(template: 'user_mailer/welcome_email.text', layout: false)
             }
           },
           subject: {
