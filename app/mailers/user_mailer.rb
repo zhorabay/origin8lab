@@ -21,7 +21,7 @@ class UserMailer < ApplicationMailer
           },
           text: {
             charset: "UTF-8",
-            data: render_to_string(template: 'user_mailer/welcome_email.text', layout: false)
+            data: render_to_string(template: 'user_mailer/welcome_email', layout: false)
           }
         },
         subject: {
