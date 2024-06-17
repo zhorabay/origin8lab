@@ -1,7 +1,6 @@
 class UserMailer < ApplicationMailer
-  def welcome_email(api_user, password)
+  def welcome_email(api_user)
     @api_user = api_user
-    @password = password
 
     ses = Aws::SES::Client.new(
       region: ENV['AWS_REGION'],
