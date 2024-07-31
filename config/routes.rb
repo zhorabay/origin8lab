@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :api do
     namespace :v1 do
+      resources :enrollments, only: [:create, :show, :update, :destroy]
       resources :carts, only: %i[create destroy]
       resources :users, only: %i[index show create update destroy] do
         member do
